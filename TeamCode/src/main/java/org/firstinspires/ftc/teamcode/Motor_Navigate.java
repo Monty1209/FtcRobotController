@@ -84,7 +84,6 @@ public class Motor_Navigate extends OpMode {
         if (Math.abs(value) <= APRILTAGDEADBAND) {
             return 0.0;
         }
-
         return value;
     }
 
