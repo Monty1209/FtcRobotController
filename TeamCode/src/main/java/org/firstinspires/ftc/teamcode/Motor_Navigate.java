@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.navigate.AprilTagWebcam;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -31,8 +32,9 @@ import java.util.Locale;
 
 @TeleOp(name = "Motor_Navigate", group = "TeleOp")
 public class Motor_Navigate extends OpMode {
+    private AprilTagWebcam RedTagReader;
 
-    private static final double JOYSTICK_DEADBAND = 0.08;
+    private static final double APRILTAGDEADBAND = Math.abs(10);
 
     private DcMotor leftFront;
     private IMU imu;
@@ -40,11 +42,12 @@ public class Motor_Navigate extends OpMode {
 
     @Override
     public void init() {
+        RedTagReader = new AprilTagWebcam();
+        RedTagReader.init(hardwareMap, telemetry);
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFront.setPower(0.0);
 
-        imu = hardwareMap.get(IMU.class, "imu");
 
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
                 RevHubOrientationOnRobot.LogoFacingDirection.UP;
@@ -57,13 +60,13 @@ public class Motor_Navigate extends OpMode {
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Motor", "leftFront ready");
-        telemetry.addData("Deadband", JOYSTICK_DEADBAND);
-        telemetry.addData("IMU Mount", "Logo UP, USB FORWARD");
+        telemetry.addData("Deadband", APRILTAGDEADBAND);
         telemetry.update();
     }
 
     @Override
     public void loop() {
+        RedTagReader.updateDetections();
         double leftStickY = -gamepad1.left_stick_y*0.5;
         double motorPower = applyDeadband(leftStickY);
         motorPower = Range.clip(motorPower, -1.0, 1.0);
@@ -71,14 +74,14 @@ public class Motor_Navigate extends OpMode {
         leftFront.setPower(motorPower);
 
         telemetry.addData("Status", "Running");
-        telemetry.addData("Deadband", JOYSTICK_DEADBAND);
+        telemetry.addData("Deadband", APRILTAGDEADBAND);
         telemetry.addData("Left Stick Y (inverted)", "%.3f", leftStickY);
         telemetry.addData("Motor Power", "%.3f", motorPower);
         telemetry.update();
     }
 
     private double applyDeadband(double value) {
-        if (Math.abs(value) <= JOYSTICK_DEADBAND) {
+        if (Math.abs(value) <= APRILTAGDEADBAND) {
             return 0.0;
         }
 
@@ -86,11 +89,8 @@ public class Motor_Navigate extends OpMode {
     }
 
 
-    @Override
-    public void stop() {
-        if (leftFront != null) {
-            leftFront.setPower(0.0);
+
         }
-    }
-}
+
+
 
