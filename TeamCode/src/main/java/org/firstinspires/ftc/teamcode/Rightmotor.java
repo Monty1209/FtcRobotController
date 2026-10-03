@@ -100,7 +100,6 @@ public class Rightmotor extends OpMode {
                     angularVelocity.zRotationRate,
                     angularVelocity.xRotationRate,
                     angularVelocity.yRotationRate,
-                    motor.getPower()
             );
             lastImuLogTimeMs = now;
         }
